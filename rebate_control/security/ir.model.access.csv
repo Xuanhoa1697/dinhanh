@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_rebate_condition_user,rebate.condition user,model_rebate_condition,rebate_base.group_rebate_user,1,1,1,1
+access_rebate_condition_ro,rebate.condition readonly,model_rebate_condition,account.group_account_readonly,1,0,0,0
+access_rebate_accrual_user,rebate.accrual user,model_rebate_accrual,rebate_base.group_rebate_user,1,0,0,0
+access_rebate_accrual_manager,rebate.accrual manager,model_rebate_accrual,rebate_base.group_rebate_manager,1,1,1,0
+access_rebate_accrual_ro,rebate.accrual readonly,model_rebate_accrual,account.group_account_readonly,1,0,0,0

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_cron_rebate_accrual" model="ir.cron">
+        <field name="name">Chiết khấu cuối kỳ: tạm trích cuối tháng</field>
+        <field name="model_id" ref="model_rebate_accrual"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_run()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="nextcall" eval="(DateTime.now().replace(day=1, hour=1, minute=0) + relativedelta(months=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+</odoo>

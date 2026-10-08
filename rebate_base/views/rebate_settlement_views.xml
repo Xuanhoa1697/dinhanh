@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rebate_settlement_view_list" model="ir.ui.view">
+        <field name="name">rebate.settlement.list</field>
+        <field name="model">rebate.settlement</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-muted="state == 'cancel'" decoration-info="state == 'to_approve'">
+                <field name="name"/>
+                <field name="agreement_id"/>
+                <field name="period_id"/>
+                <field name="direction" optional="show"/>
+                <field name="is_adjustment" optional="show"/>
+                <field name="base_amount" optional="show" sum="Tổng"/>
+                <field name="amount" sum="Tổng"/>
+                <field name="prior_paid" optional="hide" sum="Tổng"/>
+                <field name="amount_to_settle" sum="Tổng"/>
+                <field name="tax_amount" optional="show" sum="Tổng"/>
+                <field name="state" widget="badge" decoration-success="state == 'done'"
+                       decoration-info="state in ('to_approve', 'approved')" decoration-muted="state == 'cancel'"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="rebate_settlement_view_form" model="ir.ui.view">
+        <field name="name">rebate.settlement.form</field>
+        <field name="model">rebate.settlement</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <header>
+                    <button name="action_compute" type="object" string="Tính lại" invisible="state not in ('draft', 'computed')"/>
+                    <button name="action_submit" type="object" string="Trình duyệt" class="btn-primary" invisible="state != 'computed'"/>
+                    <button name="action_approve" type="object" string="Duyệt" class="btn-primary" invisible="state != 'to_approve'"
+                            groups="rebate_base.group_rebate_manager"/>
+                    <button name="action_reject" type="object" string="Trả lại" invisible="state != 'to_approve'"
+                            groups="rebate_base.group_rebate_manager"/>
+                    <button name="action_generate_documents" type="object" string="Lập chứng từ" class="btn-primary"
+                            invisible="state != 'approved'" groups="rebate_base.group_rebate_manager"/>
+                    <button name="action_print_statement" type="object" string="In bảng kê" invisible="state in ('draft', 'cancel')"/>
+                    <button name="action_print_confirmation" type="object" string="In biên bản xác nhận" invisible="state in ('draft', 'cancel')"/>
+                    <button name="action_export_xlsx" type="object" string="Xuất Excel" invisible="state in ('draft', 'cancel')"/>
+                    <button name="action_cancel" type="object" string="Hủy" invisible="state in ('cancel',)"/>
+                    <button name="action_draft" type="object" string="Đưa về Nháp" invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="computed,to_approve,approved,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_moves" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="not move_count">
+                            <field name="move_count" widget="statinfo" string="Chứng từ"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Chênh lệch" bg_color="text-bg-warning" invisible="not is_adjustment"/>
+                    <div class="alert alert-danger" role="alert" invisible="not blocked">
+                        Quyết toán bị treo vì không đạt điều kiện. Xem tab Điều kiện.
+                    </div>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="agreement_id" readonly="1"/>
+                            <field name="period_id" readonly="1"/>
+                            <label for="date_from" string="Kỳ"/>
+                            <div class="o_row"><field name="date_from" readonly="1"/> → <field name="date_to" readonly="1"/></div>
+                            <field name="direction" readonly="1"/>
+                            <field name="settlement_doc"/>
+                            <field name="payment_method"/>
+                            <field name="origin_settlement_id" invisible="not is_adjustment"/>
+                            <field name="is_adjustment" invisible="1"/>
+                            <field name="blocked" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="base_amount"/>
+                            <field name="gross_amount"/>
+                            <field name="condition_adjustment" invisible="not condition_adjustment"/>
+                            <field name="amount"/>
+                            <field name="prior_paid"/>
+                            <field name="amount_to_settle" class="fw-bold"/>
+                            <field name="tax_amount"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Kết quả theo quy tắc" name="results">
+                            <field name="result_ids" readonly="1">
+                                <list>
+                                    <field name="rule_id"/>
+                                    <field name="line_count"/>
+                                    <field name="measure"/>
+                                    <field name="amount_base"/>
+                                    <field name="tier_label"/>
+                                    <field name="next_gap"/>
+                                    <field name="amount" sum="Tổng"/>
+                                    <field name="capped"/>
+                                    <field name="segmented"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Phân bổ về hóa đơn" name="details">
+                            <field name="detail_ids" readonly="1">
+                                <list>
+                                    <field name="partner_id"/>
+                                    <field name="target_move_id"/>
+                                    <field name="move_id" optional="hide"/>
+                                    <field name="product_id"/>
+                                    <field name="quantity" optional="hide"/>
+                                    <field name="tax_rate"/>
+                                    <field name="base_amount" sum="Tổng"/>
+                                    <field name="allocated_amount" sum="Tổng"/>
+                                    <field name="allocated_tax" sum="Tổng"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Trừ kỳ sau" name="carryforward" invisible="not carryforward_ids">
+                            <field name="carryforward_ids" readonly="1">
+                                <list>
+                                    <field name="partner_id"/>
+                                    <field name="tax_rate"/>
+                                    <field name="amount" sum="Tổng"/>
+                                    <field name="amount_used" sum="Tổng"/>
+                                    <field name="amount_residual" sum="Tổng"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Điều kiện" name="conditions" invisible="not condition_html">
+                            <field name="condition_html" readonly="1"/>
+                        </page>
+                        <page string="Xác nhận &amp; duyệt" name="approval">
+                            <group>
+                                <group string="Đối tác xác nhận">
+                                    <field name="partner_confirmed" readonly="state in ('done', 'cancel')"/>
+                                    <field name="partner_confirmed_date" readonly="state in ('done', 'cancel')"/>
+                                    <field name="partner_confirmed_amount" readonly="state in ('done', 'cancel')"/>
+                                </group>
+                                <group string="Nhật ký">
+                                    <field name="computed_by_id"/>
+                                    <field name="computed_date"/>
+                                    <field name="approved_by_id"/>
+                                    <field name="approved_date"/>
+                                    <field name="doc_date" readonly="state in ('done', 'cancel')"/>
+                                </group>
+                            </group>
+                            <field name="note" placeholder="Ghi chú…"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="rebate_settlement_view_search" model="ir.ui.view">
+        <field name="name">rebate.settlement.search</field>
+        <field name="model">rebate.settlement</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="agreement_id"/>
+                <field name="period_id"/>
+                <filter name="to_approve" string="Chờ duyệt" domain="[('state', '=', 'to_approve')]"/>
+                <filter name="approved" string="Chờ lập chứng từ" domain="[('state', '=', 'approved')]"/>
+                <filter name="done" string="Đã lập chứng từ" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter name="sale" string="Bán hàng" domain="[('direction', '=', 'sale')]"/>
+                <filter name="purchase" string="Mua hàng" domain="[('direction', '=', 'purchase')]"/>
+                <filter name="adjustment" string="Chênh lệch" domain="[('is_adjustment', '=', True)]"/>
+                <group>
+                    <filter name="group_agreement" string="Thỏa thuận" context="{'group_by': 'agreement_id'}"/>
+                    <filter name="group_state" string="Trạng thái" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_rebate_settlement" model="ir.actions.act_window">
+        <field name="name">Bảng quyết toán</field>
+        <field name="res_model">rebate.settlement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="rebate_settlement_detail_view_list" model="ir.ui.view">
+        <field name="name">rebate.settlement.detail.list</field>
+        <field name="model">rebate.settlement.detail</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0">
+                <field name="settlement_id"/>
+                <field name="agreement_id"/>
+                <field name="period_id"/>
+                <field name="partner_id"/>
+                <field name="target_move_id"/>
+                <field name="product_id"/>
+                <field name="tax_rate"/>
+                <field name="base_amount" sum="Tổng"/>
+                <field name="allocated_amount" sum="Tổng"/>
+                <field name="allocated_tax" sum="Tổng"/>
+                <field name="state" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="rebate_settlement_detail_view_pivot" model="ir.ui.view">
+        <field name="name">rebate.settlement.detail.pivot</field>
+        <field name="model">rebate.settlement.detail</field>
+        <field name="arch" type="xml">
+            <pivot string="Phân bổ chiết khấu">
+                <field name="partner_id" type="row"/>
+                <field name="period_id" type="col"/>
+                <field name="allocated_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="rebate_settlement_detail_view_search" model="ir.ui.view">
+        <field name="name">rebate.settlement.detail.search</field>
+        <field name="model">rebate.settlement.detail</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="agreement_id"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <filter name="done" string="Đã lập chứng từ" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter name="sale" string="Bán hàng" domain="[('direction', '=', 'sale')]"/>
+                <filter name="purchase" string="Mua hàng" domain="[('direction', '=', 'purchase')]"/>
+                <group>
+                    <filter name="group_partner" string="Đối tác" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_product" string="Sản phẩm" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_agreement" string="Thỏa thuận" context="{'group_by': 'agreement_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_rebate_settlement_detail" model="ir.actions.act_window">
+        <field name="name">Phân bổ chiết khấu</field>
+        <field name="res_model">rebate.settlement.detail</field>
+        <field name="view_mode">pivot,list</field>
+        <field name="context">{'search_default_done': 1}</field>
+    </record>
+</odoo>

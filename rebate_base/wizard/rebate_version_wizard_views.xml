@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rebate_version_wizard_view_form" model="ir.ui.view">
+        <field name="name">rebate.version.wizard.form</field>
+        <field name="model">rebate.version.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Tạo phiên bản mới">
+                <p>Quy tắc hiện hành được sao chép thành phiên bản mới để chỉnh sửa. Phiên bản cũ vẫn áp dụng
+                    cho các giao dịch trước ngày áp dụng; kỳ đã quyết toán không bị ảnh hưởng.</p>
+                <group>
+                    <field name="agreement_id" readonly="1"/>
+                    <field name="date_start"/>
+                    <field name="reason"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Tạo phiên bản" class="btn-primary"/>
+                    <button string="Bỏ qua" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

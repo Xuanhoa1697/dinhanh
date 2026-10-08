@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rebate_rule_view_form" model="ir.ui.view">
+        <field name="name">rebate.rule.form</field>
+        <field name="model">rebate.rule</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h2><field name="name" placeholder="VD: Nước giải khát – theo doanh số" readonly="approved"/></h2>
+                    </div>
+                    <group>
+                        <group string="Phạm vi hàng hóa">
+                            <field name="product_scope" readonly="approved"/>
+                            <field name="product_categ_ids" widget="many2many_tags"
+                                   invisible="product_scope != 'category'" readonly="approved"/>
+                            <field name="product_ids" widget="many2many_tags"
+                                   invisible="product_scope != 'product'" readonly="approved"/>
+                            <field name="product_domain" widget="domain" options="{'model': 'product.product'}"
+                                   invisible="product_scope != 'domain'" readonly="approved"/>
+                            <field name="exclude_product_ids" widget="many2many_tags" readonly="approved"/>
+                        </group>
+                        <group string="Cách tính">
+                            <field name="basis" readonly="approved"/>
+                            <field name="uom_id" invisible="basis != 'qty' and value_type != 'per_unit'" readonly="approved"/>
+                            <field name="tier_mode" readonly="approved"/>
+                            <field name="value_type" readonly="approved"/>
+                            <field name="min_threshold" readonly="approved"/>
+                            <field name="cap_amount" readonly="approved"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="tier_ids" readonly="approved">
+                        <list editable="bottom">
+                            <field name="from_value"/>
+                            <field name="to_value"/>
+                            <field name="value"/>
+                        </list>
+                    </field>
+                    <group string="Phiên bản" col="4">
+                        <field name="key" readonly="1"/>
+                        <field name="version" readonly="1"/>
+                        <field name="date_start" readonly="approved"/>
+                        <field name="date_end" readonly="1"/>
+                        <field name="approved" readonly="1"/>
+                        <field name="is_current" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="rebate_rule_view_list" model="ir.ui.view">
+        <field name="name">rebate.rule.list</field>
+        <field name="model">rebate.rule</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="product_scope"/>
+                <field name="basis"/>
+                <field name="tier_mode"/>
+                <field name="value_type"/>
+                <field name="tier_summary"/>
+                <field name="version"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="approved"/>
+            </list>
+        </field>
+    </record>
+</odoo>

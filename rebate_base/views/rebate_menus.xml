@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_rebate_root" name="Chiết khấu cuối kỳ" sequence="45"
+              web_icon="rebate_base,static/description/icon.png"
+              groups="rebate_base.group_rebate_user,account.group_account_readonly"/>
+
+    <menuitem id="menu_rebate_agreements" name="Thỏa thuận" parent="menu_rebate_root" sequence="10"/>
+    <menuitem id="menu_rebate_agreement_sale" name="Bán hàng" parent="menu_rebate_agreements"
+              action="action_rebate_agreement_sale" sequence="10"/>
+    <menuitem id="menu_rebate_agreement_purchase" name="Mua hàng" parent="menu_rebate_agreements"
+              action="action_rebate_agreement_purchase" sequence="20"/>
+    <menuitem id="menu_rebate_agreement_all" name="Tất cả" parent="menu_rebate_agreements"
+              action="action_rebate_agreement" sequence="30"/>
+    <menuitem id="menu_rebate_import" name="Nhập từ Excel" parent="menu_rebate_agreements"
+              action="action_rebate_import" sequence="40"/>
+
+    <menuitem id="menu_rebate_settle" name="Quyết toán" parent="menu_rebate_root" sequence="20"/>
+    <menuitem id="menu_rebate_period" name="Kỳ chiết khấu" parent="menu_rebate_settle"
+              action="action_rebate_period" sequence="10"/>
+    <menuitem id="menu_rebate_settlement" name="Bảng quyết toán" parent="menu_rebate_settle"
+              action="action_rebate_settlement" sequence="20"/>
+
+    <menuitem id="menu_rebate_analysis" name="Phân tích" parent="menu_rebate_root" sequence="30"/>
+    <menuitem id="menu_rebate_line" name="Dòng lũy kế" parent="menu_rebate_analysis"
+              action="action_rebate_line" sequence="10"/>
+    <menuitem id="menu_rebate_detail" name="Phân bổ chiết khấu" parent="menu_rebate_analysis"
+              action="action_rebate_settlement_detail" sequence="20"/>
+
+    <menuitem id="menu_rebate_config" name="Cấu hình" parent="menu_rebate_root" sequence="90"
+              groups="rebate_base.group_rebate_admin"/>
+    <menuitem id="menu_rebate_settings" name="Thiết lập" parent="menu_rebate_config"
+              action="action_rebate_config" sequence="10" groups="base.group_system"/>
+    <menuitem id="menu_rebate_template" name="Mẫu thỏa thuận" parent="menu_rebate_config"
+              action="action_rebate_template" sequence="20"/>
+</odoo>

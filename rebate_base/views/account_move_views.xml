@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form_rebate" model="ir.ui.view">
+        <field name="name">account.move.form.rebate</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="rebate_carry_available" invisible="1"/>
+                <button name="action_rebate_apply_carryforward" type="object" string="Áp chiết khấu cuối kỳ"
+                        invisible="state != 'draft' or not rebate_carry_available"
+                        help="Trừ số chiết khấu cuối kỳ còn lại của đối tác vào hóa đơn này"/>
+            </xpath>
+            <div name="button_box" position="inside">
+                <button name="action_view_rebate_lines" type="object" class="oe_stat_button" icon="fa-line-chart"
+                        invisible="not rebate_line_count" groups="rebate_base.group_rebate_user">
+                    <field name="rebate_line_count" widget="statinfo" string="Lũy kế CK"/>
+                </button>
+            </div>
+            <xpath expr="//field[@name='ref']" position="after">
+                <field name="rebate_settlement_id" invisible="not rebate_settlement_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

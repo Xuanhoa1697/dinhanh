@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rebate_dashboard_view_form" model="ir.ui.view">
+        <field name="name">rebate.dashboard.form</field>
+        <field name="model">rebate.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Bảng điều khiển" create="0" delete="0">
+                <sheet>
+                    <h2>Việc cần xử lý</h2>
+                    <div class="o_rebate_dashboard d-flex flex-wrap gap-2 mb-4">
+                        <button name="action_open_due" type="object" class="btn btn-outline-danger">
+                            <field name="count_due" class="fs-3 d-block"/> Kỳ đến hạn quyết toán
+                        </button>
+                        <button name="action_open_recalc" type="object" class="btn btn-outline-warning">
+                            <field name="count_recalc" class="fs-3 d-block"/> Kỳ cần tính lại
+                        </button>
+                        <button name="action_open_agreement_to_approve" type="object" class="btn btn-outline-primary">
+                            <field name="count_agreement_to_approve" class="fs-3 d-block"/> Thỏa thuận chờ duyệt
+                        </button>
+                        <button name="action_open_settlement_to_approve" type="object" class="btn btn-outline-primary">
+                            <field name="count_settlement_to_approve" class="fs-3 d-block"/> Quyết toán chờ duyệt
+                        </button>
+                        <button name="action_open_to_document" type="object" class="btn btn-outline-primary">
+                            <field name="count_to_document" class="fs-3 d-block"/> Chờ lập chứng từ
+                        </button>
+                        <button name="action_open_vendor_pending" type="object" class="btn btn-outline-warning"
+                                invisible="not count_vendor_pending">
+                            <field name="count_vendor_pending" class="fs-3 d-block"/> Chờ chứng từ NCC
+                        </button>
+                        <button name="action_open_expiring" type="object" class="btn btn-outline-secondary">
+                            <field name="count_expiring" class="fs-3 d-block"/> Thỏa thuận sắp hết hạn
+                        </button>
+                    </div>
+                    <h2>Đối tác sát ngưỡng bậc (<field name="count_near" class="oe_inline"/>)</h2>
+                    <group>
+                        <field name="near_ratio"/>
+                    </group>
+                    <field name="near_html" nolabel="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_rebate_dashboard" model="ir.actions.act_window">
+        <field name="name">Bảng điều khiển</field>
+        <field name="res_model">rebate.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem id="menu_rebate_dashboard" name="Bảng điều khiển" parent="rebate_base.menu_rebate_root"
+              action="action_rebate_dashboard" sequence="1"/>
+</odoo>

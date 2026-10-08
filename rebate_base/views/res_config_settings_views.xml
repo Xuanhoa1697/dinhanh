@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_rebate" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.rebate</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Chiết khấu cuối kỳ" string="Chiết khấu cuối kỳ" name="rebate_base"
+                     groups="rebate_base.group_rebate_admin">
+                    <block title="Tài khoản" name="rebate_accounts">
+                        <setting id="rebate_sale_accounts" string="Bán hàng" company_dependent="1"
+                                 help="Để trống sẽ tự tìm tài khoản theo mã chuẩn (521, 3388, 641).">
+                            <div class="content-group">
+                                <div class="row mt8"><label for="rebate_sale_account_id" class="col-lg-5 o_light_label"/><field name="rebate_sale_account_id"/></div>
+                                <div class="row"><label for="rebate_accrual_sale_account_id" class="col-lg-5 o_light_label"/><field name="rebate_accrual_sale_account_id"/></div>
+                                <div class="row"><label for="rebate_support_sale_account_id" class="col-lg-5 o_light_label"/><field name="rebate_support_sale_account_id"/></div>
+                                <div class="row"><label for="rebate_sale_journal_id" class="col-lg-5 o_light_label"/><field name="rebate_sale_journal_id"/></div>
+                            </div>
+                        </setting>
+                        <setting id="rebate_purchase_accounts" string="Mua hàng" company_dependent="1"
+                                 help="Để trống sẽ tự tìm tài khoản theo mã chuẩn (1388, 632, 711).">
+                            <div class="content-group">
+                                <div class="row mt8"><label for="rebate_purchase_clearing_account_id" class="col-lg-5 o_light_label"/><field name="rebate_purchase_clearing_account_id"/></div>
+                                <div class="row"><label for="rebate_accrual_purchase_account_id" class="col-lg-5 o_light_label"/><field name="rebate_accrual_purchase_account_id"/></div>
+                                <div class="row"><label for="rebate_accrual_purchase_counter_account_id" class="col-lg-5 o_light_label"/><field name="rebate_accrual_purchase_counter_account_id"/></div>
+                                <div class="row"><label for="rebate_support_purchase_account_id" class="col-lg-5 o_light_label"/><field name="rebate_support_purchase_account_id"/></div>
+                                <div class="row"><label for="rebate_purchase_journal_id" class="col-lg-5 o_light_label"/><field name="rebate_purchase_journal_id"/></div>
+                            </div>
+                        </setting>
+                        <setting id="rebate_misc" string="Bút toán &amp; sản phẩm" company_dependent="1">
+                            <div class="content-group">
+                                <div class="row mt8"><label for="rebate_misc_journal_id" class="col-lg-5 o_light_label"/><field name="rebate_misc_journal_id"/></div>
+                                <div class="row"><label for="rebate_product_id" class="col-lg-5 o_light_label"/><field name="rebate_product_id"/></div>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Kiểm soát" name="rebate_control">
+                        <setting id="rebate_accrual" string="Tạm trích" company_dependent="1"
+                                 help="Ước tính chiết khấu cuối mỗi tháng và đảo khi quyết toán.">
+                            <field name="rebate_accrual_mode"/>
+                        </setting>
+                        <setting id="rebate_approval" string="Duyệt quyết toán" company_dependent="1"
+                                 help="Quyết toán vượt hạn mức cần nhóm Quản trị duyệt (0 = không giới hạn).">
+                            <field name="rebate_approval_limit"/>
+                        </setting>
+                        <setting id="rebate_segregation" company_dependent="1"
+                                 help="Người lập thỏa thuận / tính quyết toán không được tự duyệt.">
+                            <field name="rebate_segregation"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_rebate_config" model="ir.actions.act_window">
+        <field name="name">Thiết lập</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'rebate_base', 'bin_size': False}</field>
+    </record>
+</odoo>

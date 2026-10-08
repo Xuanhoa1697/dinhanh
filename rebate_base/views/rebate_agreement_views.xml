@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rebate_agreement_view_list" model="ir.ui.view">
+        <field name="name">rebate.agreement.list</field>
+        <field name="model">rebate.agreement</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state in ('closed', 'cancel')" decoration-info="state in ('to_approve', 'revision')">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="direction"/>
+                <field name="partner_ids" widget="many2many_tags"/>
+                <field name="contract_ref" optional="show"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="period_type" optional="show"/>
+                <field name="version" optional="hide"/>
+                <field name="user_id" optional="show" widget="many2one_avatar_user"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'active'"
+                       decoration-info="state in ('to_approve', 'revision')" decoration-muted="state in ('closed', 'cancel')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="rebate_agreement_view_form" model="ir.ui.view">
+        <field name="name">rebate.agreement.form</field>
+        <field name="model">rebate.agreement</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit" type="object" string="Trình duyệt" class="btn-primary"
+                            invisible="state not in ('draft', 'revision')"/>
+                    <button name="action_approve" type="object" string="Duyệt" class="btn-primary"
+                            invisible="state != 'to_approve'" groups="rebate_base.group_rebate_manager"/>
+                    <button name="action_reject" type="object" string="Từ chối"
+                            invisible="state != 'to_approve'" groups="rebate_base.group_rebate_manager"/>
+                    <button name="action_open_version_wizard" type="object" string="Tạo phiên bản mới"
+                            invisible="state != 'active'"/>
+                    <button name="action_cancel_revision" type="object" string="Bỏ sửa đổi"
+                            invisible="state != 'revision'"/>
+                    <button name="action_rebuild_lines" type="object" string="Tính lại lũy kế"
+                            invisible="state not in ('active', 'revision')"
+                            confirm="Quét lại hóa đơn đã ghi sổ và dựng lại lũy kế của các kỳ chưa quyết toán?"/>
+                    <button name="action_generate_periods" type="object" string="Sinh kỳ"
+                            invisible="state != 'active' or period_count"/>
+                    <button name="action_close" type="object" string="Đóng"
+                            invisible="state != 'active'" groups="rebate_base.group_rebate_manager"/>
+                    <button name="action_cancel" type="object" string="Hủy"
+                            invisible="state not in ('draft', 'to_approve', 'active')"/>
+                    <button name="action_draft" type="object" string="Đưa về Nháp" invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,to_approve,active,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_periods" type="object" class="oe_stat_button" icon="fa-calendar">
+                            <field name="period_count" widget="statinfo" string="Kỳ"/>
+                        </button>
+                        <button name="action_view_lines" type="object" class="oe_stat_button" icon="fa-list">
+                            <field name="line_count" widget="statinfo" string="Dòng lũy kế"/>
+                        </button>
+                        <button name="action_view_settlements" type="object" class="oe_stat_button" icon="fa-calculator">
+                            <field name="settlement_count" widget="statinfo" string="Quyết toán"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Đang sửa đổi" bg_color="text-bg-warning" invisible="state != 'revision'"/>
+                    <div class="oe_title">
+                        <span class="text-muted"><field name="name" readonly="1"/> · phiên bản <field name="version" readonly="1" class="oe_inline"/></span>
+                        <h1><field name="title" placeholder="VD: Thưởng doanh số nhà phân phối 2026" readonly="state not in ('draft', 'revision')"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="direction" readonly="state != 'draft'" widget="radio" options="{'horizontal': true}"/>
+                            <field name="nature" readonly="state != 'draft'"/>
+                            <field name="template_id" readonly="state != 'draft'"/>
+                            <field name="partner_ids" widget="many2many_tags" readonly="state != 'draft'"/>
+                            <field name="partner_category_ids" widget="many2many_tags" readonly="state != 'draft'"/>
+                            <field name="contract_ref" readonly="state not in ('draft', 'revision')"/>
+                        </group>
+                        <group>
+                            <label for="date_from" string="Thời hạn"/>
+                            <div class="o_row">
+                                <field name="date_from" readonly="state != 'draft'"/> → <field name="date_to" readonly="state != 'draft'"/>
+                            </div>
+                            <field name="period_type" readonly="state != 'draft'"/>
+                            <field name="currency_id" readonly="state != 'draft'" groups="base.group_multi_currency"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                            <field name="approved_by_id" invisible="not approved_by_id"/>
+                            <field name="approved_date" invisible="not approved_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Quy tắc" name="rules">
+                            <field name="rule_ids" readonly="state != 'draft'"
+                                   context="{'default_agreement_id': id, 'default_is_current': True}">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="product_scope"/>
+                                    <field name="basis"/>
+                                    <field name="tier_mode"/>
+                                    <field name="value_type"/>
+                                    <field name="tier_summary"/>
+                                    <field name="date_start"/>
+                                    <field name="date_end"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Phiên bản mới (chờ duyệt)" name="pending" invisible="state not in ('revision', 'to_approve') or (state == 'to_approve' and not is_revision)">
+                            <field name="is_revision" invisible="1"/>
+                            <field name="pending_rule_ids" readonly="state != 'revision'"
+                                   context="{'default_agreement_id': id, 'default_is_current': False}">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="tier_summary"/>
+                                    <field name="version"/>
+                                    <field name="date_start"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Quyết toán" name="settlement">
+                            <group>
+                                <group string="Chứng từ">
+                                    <field name="settlement_doc" readonly="state not in ('draft', 'revision')"/>
+                                    <field name="payment_method" readonly="state not in ('draft', 'revision')"/>
+                                    <field name="allocation_key" readonly="state not in ('draft', 'revision')"/>
+                                    <field name="cogs_split" invisible="direction != 'purchase'" readonly="state not in ('draft', 'revision')"/>
+                                </group>
+                                <group string="Xử lý ngoại lệ">
+                                    <field name="return_period_rule" readonly="state != 'draft'"/>
+                                    <field name="post_close_recalc" readonly="state not in ('draft', 'revision')"/>
+                                    <field name="negative_true_up" readonly="state not in ('draft', 'revision')"/>
+                                    <field name="mid_period_change" readonly="state not in ('draft', 'revision')"/>
+                                    <field name="stacking" readonly="state != 'draft'"/>
+                                    <field name="priority" readonly="state != 'draft'"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Kỳ" name="periods">
+                            <field name="period_ids" readonly="1">
+                                <list decoration-warning="needs_recalc" decoration-muted="state == 'settled'">
+                                    <field name="name"/>
+                                    <field name="parent_id"/>
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                    <field name="state" widget="badge"/>
+                                    <field name="needs_recalc"/>
+                                    <field name="settled_amount" sum="Tổng"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Lịch sử phiên bản" name="history">
+                            <field name="all_rule_ids" readonly="1" context="{'active_test': False}">
+                                <list>
+                                    <field name="version"/>
+                                    <field name="name"/>
+                                    <field name="tier_summary"/>
+                                    <field name="date_start"/>
+                                    <field name="date_end"/>
+                                    <field name="approved"/>
+                                    <field name="is_current"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Ghi chú" name="note">
+                            <field name="note"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="rebate_agreement_view_search" model="ir.ui.view">
+        <field name="name">rebate.agreement.search</field>
+        <field name="model">rebate.agreement</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('title', 'ilike', self)]"/>
+                <field name="partner_ids"/>
+                <field name="contract_ref"/>
+                <filter name="sale" string="Bán hàng" domain="[('direction', '=', 'sale')]"/>
+                <filter name="purchase" string="Mua hàng" domain="[('direction', '=', 'purchase')]"/>
+                <separator/>
+                <filter name="to_approve" string="Chờ duyệt" domain="[('state', '=', 'to_approve')]"/>
+                <filter name="active" string="Hiệu lực" domain="[('state', 'in', ('active', 'revision'))]"/>
+                <filter name="expiring" string="Sắp hết hạn (30 ngày)"
+                        domain="[('state', '=', 'active'), ('date_to', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <group>
+                    <filter name="group_state" string="Trạng thái" context="{'group_by': 'state'}"/>
+                    <filter name="group_direction" string="Chiều" context="{'group_by': 'direction'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_rebate_agreement_sale" model="ir.actions.act_window">
+        <field name="name">Thỏa thuận bán hàng</field>
+        <field name="res_model">rebate.agreement</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('direction', '=', 'sale')]</field>
+        <field name="context">{'default_direction': 'sale'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Tạo thỏa thuận chiết khấu cuối kỳ cho khách hàng</p>
+            <p>Khai báo đối tác, kỳ tính, quy tắc và bậc thang. Sau khi duyệt, hóa đơn ghi sổ sẽ tự cộng lũy kế.</p>
+        </field>
+    </record>
+
+    <record id="action_rebate_agreement_purchase" model="ir.actions.act_window">
+        <field name="name">Thỏa thuận mua hàng</field>
+        <field name="res_model">rebate.agreement</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('direction', '=', 'purchase')]</field>
+        <field name="context">{'default_direction': 'purchase', 'default_settlement_doc': 'adjust_invoice'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nhập thỏa thuận chiết khấu cuối kỳ từ hợp đồng nhà cung cấp</p>
+            <p>Hệ thống tính số chiết khấu được hưởng để đối chiếu với hóa đơn điều chỉnh của nhà cung cấp.</p>
+        </field>
+    </record>
+
+    <record id="action_rebate_agreement" model="ir.actions.act_window">
+        <field name="name">Tất cả thỏa thuận</field>
+        <field name="res_model">rebate.agreement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

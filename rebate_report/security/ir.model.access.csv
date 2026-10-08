@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_rebate_margin_report_user,rebate.margin.report user,model_rebate_margin_report,rebate_base.group_rebate_user,1,0,0,0
+access_rebate_margin_report_ro,rebate.margin.report readonly,model_rebate_margin_report,account.group_account_readonly,1,0,0,0
+access_rebate_dashboard_user,rebate.dashboard user,model_rebate_dashboard,rebate_base.group_rebate_user,1,1,1,1
+access_rebate_simulation_user,rebate.simulation user,model_rebate_simulation,rebate_base.group_rebate_user,1,1,1,1

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_rebate_statement" model="ir.actions.report">
+        <field name="name">Bảng kê hóa đơn điều chỉnh</field>
+        <field name="model">rebate.settlement</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">rebate_base.report_rebate_statement</field>
+        <field name="report_file">rebate_base.report_rebate_statement</field>
+        <field name="print_report_name">'BangKe_%s' % (object.name.replace('/', '_'))</field>
+        <field name="binding_model_id" ref="model_rebate_settlement"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_rebate_confirmation" model="ir.actions.report">
+        <field name="name">Biên bản xác nhận doanh số và chiết khấu</field>
+        <field name="model">rebate.settlement</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">rebate_base.report_rebate_confirmation</field>
+        <field name="report_file">rebate_base.report_rebate_confirmation</field>
+        <field name="print_report_name">'BienBan_%s' % (object.name.replace('/', '_'))</field>
+        <field name="binding_model_id" ref="model_rebate_settlement"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

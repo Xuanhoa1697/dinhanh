@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_rebate_agreement" model="ir.sequence">
+            <field name="name">Thỏa thuận chiết khấu cuối kỳ</field>
+            <field name="code">rebate.agreement</field>
+            <field name="prefix">TTCK/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_rebate_settlement" model="ir.sequence">
+            <field name="name">Quyết toán chiết khấu cuối kỳ</field>
+            <field name="code">rebate.settlement</field>
+            <field name="prefix">QTCK/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rebate_agreement_view_form_control" model="ir.ui.view">
+        <field name="name">rebate.agreement.form.control</field>
+        <field name="model">rebate.agreement</field>
+        <field name="inherit_id" ref="rebate_base.rebate_agreement_view_form"/>
+        <field name="arch" type="xml">
+            <page name="settlement" position="after">
+                <page string="Điều kiện hưởng" name="conditions">
+                    <field name="condition_ids" readonly="state not in ('draft', 'revision')">
+                        <list>
+                            <field name="sequence" widget="handle"/>
+                            <field name="condition_type"/>
+                            <field name="description"/>
+                            <field name="effect"/>
+                        </list>
+                        <form>
+                            <group>
+                                <group>
+                                    <field name="condition_type"/>
+                                    <field name="effect"/>
+                                    <field name="effect_value" invisible="effect == 'block'"/>
+                                </group>
+                                <group>
+                                    <field name="max_overdue_days" invisible="condition_type != 'overdue'"/>
+                                    <field name="max_overdue_amount" invisible="condition_type != 'overdue'"/>
+                                    <field name="max_return_rate" invisible="condition_type != 'return_rate'"/>
+                                    <field name="growth_rate" invisible="condition_type != 'growth'"/>
+                                    <field name="new_partner_pass" invisible="condition_type != 'growth'"/>
+                                    <field name="min_share" invisible="condition_type != 'mix'"/>
+                                    <field name="mix_product_categ_ids" widget="many2many_tags" invisible="condition_type != 'mix'"/>
+                                    <field name="mix_product_ids" widget="many2many_tags" invisible="condition_type != 'mix'"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </group>
+                            </group>
+                        </form>
+                    </field>
+                </page>
+            </page>
+        </field>
+    </record>
+
+    <record id="rebate_accrual_view_list" model="ir.ui.view">
+        <field name="name">rebate.accrual.list</field>
+        <field name="model">rebate.accrual</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0">
+                <header>
+                    <button name="action_run_now" type="object" string="Tạm trích đến hôm nay" display="always"
+                            groups="rebate_base.group_rebate_manager"/>
+                </header>
+                <field name="date"/>
+                <field name="agreement_id"/>
+                <field name="period_id"/>
+                <field name="direction"/>
+                <field name="kind"/>
+                <field name="estimate"/>
+                <field name="amount" sum="Số dư"/>
+                <field name="mode"/>
+                <field name="move_id"/>
+                <field name="settlement_id" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="rebate_accrual_view_search" model="ir.ui.view">
+        <field name="name">rebate.accrual.search</field>
+        <field name="model">rebate.accrual</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="agreement_id"/>
+                <field name="period_id"/>
+                <filter name="sale" string="Bán hàng" domain="[('direction', '=', 'sale')]"/>
+                <filter name="purchase" string="Mua hàng" domain="[('direction', '=', 'purchase')]"/>
+                <group>
+                    <filter name="group_period" string="Kỳ" context="{'group_by': 'period_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_rebate_accrual" model="ir.actions.act_window">
+        <field name="name">Tạm trích</field>
+        <field name="res_model">rebate.accrual</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="context">{'search_default_group_period': 1}</field>
+    </record>
+
+    <menuitem id="menu_rebate_accrual" name="Tạm trích" parent="rebate_base.menu_rebate_settle"
+              action="action_rebate_accrual" sequence="40"/>
+</odoo>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rebate_xlsx_export_view_form" model="ir.ui.view">
+        <field name="name">rebate.xlsx.export.form</field>
+        <field name="model">rebate.xlsx.export</field>
+        <field name="arch" type="xml">
+            <form string="Xuất bảng kê Excel">
+                <group>
+                    <field name="settlement_id" readonly="1"/>
+                    <field name="file_name" invisible="1"/>
+                    <field name="file_data" filename="file_name" readonly="1"/>
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>

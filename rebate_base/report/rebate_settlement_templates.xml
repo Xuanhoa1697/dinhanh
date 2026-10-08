@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_rebate_statement_document">
+        <t t-call="web.external_layout">
+            <t t-set="o" t-value="o.with_context(lang=lang)"/>
+            <div class="page">
+                <h4 class="text-center">BẢNG KÊ HÓA ĐƠN ĐIỀU CHỈNH CHIẾT KHẤU THƯƠNG MẠI</h4>
+                <p class="text-center">
+                    (Kèm theo hóa đơn điều chỉnh giảm – quyết toán <span t-field="o.name"/>)
+                </p>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <strong>Thỏa thuận:</strong> <span t-field="o.agreement_id.name"/> – <span t-field="o.agreement_id.title"/><br/>
+                        <strong>Hợp đồng:</strong> <span t-field="o.agreement_id.contract_ref"/>
+                    </div>
+                    
+                    <div class="col-6">
+                        <strong>Kỳ:</strong> <span t-field="o.period_id.name"/>
+                        (<span t-field="o.date_from"/> – <span t-field="o.date_to"/>)<br/>
+                        <strong>Đơn vị tiền:</strong> <span t-field="o.currency_id.name"/>
+                    </div>
+                </div>
+                <t t-set="rows" t-value="o._statement_rows()"/>
+                <table class="table table-sm o_main_table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Đối tác</th>
+                            <th>MST</th>
+                            <th>Số hóa đơn</th>
+                            <th>Ngày</th>
+                            <th class="text-end">Thuế suất</th>
+                            <th class="text-end">Giá trị chưa thuế</th>
+                            <th class="text-end">CK điều chỉnh giảm</th>
+                            <th class="text-end">Thuế GTGT điều chỉnh</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="rows" t-as="r">
+                            <tr>
+                                <td><t t-out="r_index + 1"/></td>
+                                <td><t t-out="r['partner'].display_name"/></td>
+                                <td><t t-out="r['partner'].vat or ''"/></td>
+                                <td><t t-out="r['number'] or ''"/></td>
+                                <td><t t-out="r['date'] and r['date'].strftime('%d/%m/%Y') or ''"/></td>
+                                <td class="text-end"><t t-out="'{:g}%'.format(r['tax_rate'])"/></td>
+                                <td class="text-end"><t t-out="r['base']" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                                <td class="text-end"><t t-out="r['amount']" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                                <td class="text-end"><t t-out="r['tax']" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td colspan="6">Tổng cộng</td>
+                            <td class="text-end"><t t-out="sum(r['base'] for r in rows)" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                            <td class="text-end"><t t-out="sum(r['amount'] for r in rows)" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                            <td class="text-end"><t t-out="sum(r['tax'] for r in rows)" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div class="row mt-5">
+                    <div class="col-6 text-center"><strong>Người lập</strong><br/><i>(Ký, ghi rõ họ tên)</i></div>
+                    <div class="col-6 text-center"><strong>Đại diện đơn vị</strong><br/><i>(Ký, đóng dấu)</i></div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_rebate_statement">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.env.user.lang"/>
+                <t t-call="rebate_base.report_rebate_statement_document" t-lang="lang"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_rebate_confirmation_document">
+        <t t-call="web.external_layout">
+            <t t-set="o" t-value="o.with_context(lang=lang)"/>
+            <div class="page">
+                <h4 class="text-center">BIÊN BẢN XÁC NHẬN DOANH SỐ VÀ CHIẾT KHẤU THƯƠNG MẠI</h4>
+                <p class="text-center">Số: <span t-field="o.name"/></p>
+                <p>
+                    Căn cứ hợp đồng / phụ lục <strong><span t-field="o.agreement_id.contract_ref"/></strong>
+                    và thỏa thuận <strong><span t-field="o.agreement_id.name"/> – <span t-field="o.agreement_id.title"/></strong>,
+                    hai bên cùng xác nhận số liệu kỳ <strong><span t-field="o.period_id.name"/></strong>
+                    (từ <span t-field="o.date_from"/> đến <span t-field="o.date_to"/>) như sau:
+                </p>
+                <p><strong>Bên A:</strong> <span t-field="o.company_id.name"/> – MST <span t-field="o.company_id.vat"/></p>
+                <p><strong>Bên B:</strong>
+                    <t t-out="', '.join(o.detail_ids.partner_id.mapped('display_name')) or ', '.join(o.agreement_id.partner_ids.mapped('display_name'))"/>
+                </p>
+                <table class="table table-sm o_main_table">
+                    <thead>
+                        <tr>
+                            <th>Quy tắc</th>
+                            <th class="text-end">Đã đạt</th>
+                            <th>Bậc đạt</th>
+                            <th class="text-end">Chiết khấu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="o.result_ids" t-as="res">
+                            <td><span t-field="res.rule_id.name"/></td>
+                            <td class="text-end"><t t-out="'{:,.2f}'.format(res.measure)"/></td>
+                            <td><span t-field="res.tier_label"/></td>
+                            <td class="text-end"><span t-field="res.amount"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-sm" style="width: 60%; margin-left: auto;">
+                    <tr><td>Doanh số / giá trị lũy kế</td><td class="text-end"><span t-field="o.base_amount"/></td></tr>
+                    <tr t-if="o.condition_adjustment"><td>Điều chỉnh do điều kiện</td><td class="text-end"><span t-field="o.condition_adjustment"/></td></tr>
+                    <tr><td>Chiết khấu của kỳ</td><td class="text-end"><span t-field="o.amount"/></td></tr>
+                    <tr t-if="o.prior_paid"><td>Đã quyết toán trước</td><td class="text-end"><span t-field="o.prior_paid"/></td></tr>
+                    <tr class="fw-bold"><td>Số chiết khấu quyết toán (chưa thuế)</td><td class="text-end"><span t-field="o.amount_to_settle"/></td></tr>
+                    <tr><td>Thuế GTGT điều chỉnh</td><td class="text-end"><span t-field="o.tax_amount"/></td></tr>
+                </table>
+                <p>Hình thức: <span t-field="o.agreement_id.settlement_doc"/>; thanh toán: <span t-field="o.agreement_id.payment_method"/>.</p>
+                <div class="row mt-5">
+                    <div class="col-6 text-center"><strong>ĐẠI DIỆN BÊN A</strong><br/><i>(Ký, đóng dấu)</i></div>
+                    <div class="col-6 text-center"><strong>ĐẠI DIỆN BÊN B</strong><br/><i>(Ký, đóng dấu)</i></div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_rebate_confirmation">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.env.user.lang"/>
+                <t t-call="rebate_base.report_rebate_confirmation_document" t-lang="lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>

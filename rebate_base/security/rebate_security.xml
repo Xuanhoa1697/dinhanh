@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="res.groups.privilege" id="res_groups_privilege_rebate">
+        <field name="name">Chiết khấu cuối kỳ</field>
+        <field name="sequence">30</field>
+        <field name="category_id" ref="base.module_category_accounting"/>
+    </record>
+
+    <record id="group_rebate_user" model="res.groups">
+        <field name="name">Người lập</field>
+        <field name="sequence">10</field>
+        <field name="comment">Tạo thỏa thuận, khóa kỳ, tính quyết toán. Không được duyệt.</field>
+        <field name="privilege_id" ref="res_groups_privilege_rebate"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_rebate_manager" model="res.groups">
+        <field name="name">Người duyệt</field>
+        <field name="sequence">20</field>
+        <field name="comment">Duyệt thỏa thuận và quyết toán trong hạn mức, lập chứng từ.</field>
+        <field name="privilege_id" ref="res_groups_privilege_rebate"/>
+        <field name="implied_ids" eval="[(4, ref('group_rebate_user'))]"/>
+    </record>
+
+    <record id="group_rebate_admin" model="res.groups">
+        <field name="name">Quản trị</field>
+        <field name="sequence">30</field>
+        <field name="comment">Duyệt không giới hạn, cấu hình, mở lại kỳ.</field>
+        <field name="privilege_id" ref="res_groups_privilege_rebate"/>
+        <field name="implied_ids" eval="[(4, ref('group_rebate_manager'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <record id="rebate_agreement_company_rule" model="ir.rule">
+        <field name="name">Rebate agreement multi-company</field>
+        <field name="model_id" ref="model_rebate_agreement"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rebate_period_company_rule" model="ir.rule">
+        <field name="name">Rebate period multi-company</field>
+        <field name="model_id" ref="model_rebate_period"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rebate_line_company_rule" model="ir.rule">
+        <field name="name">Rebate line multi-company</field>
+        <field name="model_id" ref="model_rebate_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rebate_settlement_company_rule" model="ir.rule">
+        <field name="name">Rebate settlement multi-company</field>
+        <field name="model_id" ref="model_rebate_settlement"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

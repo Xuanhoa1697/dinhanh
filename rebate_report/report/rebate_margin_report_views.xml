@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rebate_margin_report_view_pivot" model="ir.ui.view">
+        <field name="name">rebate.margin.report.pivot</field>
+        <field name="model">rebate.margin.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Lợi nhuận sau chiết khấu" sample="1">
+                <field name="partner_id" type="row"/>
+                <field name="period_id" type="col"/>
+                <field name="amount" type="measure"/>
+                <field name="cost_amount" type="measure"/>
+                <field name="rebate_amount" type="measure"/>
+                <field name="margin" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="rebate_margin_report_view_graph" model="ir.ui.view">
+        <field name="name">rebate.margin.report.graph</field>
+        <field name="model">rebate.margin.report</field>
+        <field name="arch" type="xml">
+            <graph string="Lợi nhuận sau chiết khấu" type="bar" sample="1">
+                <field name="partner_id"/>
+                <field name="margin" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="rebate_margin_report_view_list" model="ir.ui.view">
+        <field name="name">rebate.margin.report.list</field>
+        <field name="model">rebate.margin.report</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="date"/>
+                <field name="agreement_id"/>
+                <field name="period_id"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="quantity" sum="Tổng"/>
+                <field name="amount" sum="Tổng"/>
+                <field name="cost_amount" sum="Tổng"/>
+                <field name="rebate_amount" sum="Tổng"/>
+                <field name="net_amount" sum="Tổng"/>
+                <field name="margin" sum="Tổng"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="rebate_margin_report_view_search" model="ir.ui.view">
+        <field name="name">rebate.margin.report.search</field>
+        <field name="model">rebate.margin.report</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="agreement_id"/>
+                <filter name="sale" string="Bán hàng" domain="[('direction', '=', 'sale')]"/>
+                <filter name="purchase" string="Mua hàng" domain="[('direction', '=', 'purchase')]"/>
+                <group>
+                    <filter name="group_partner" string="Đối tác" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_product" string="Sản phẩm" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_categ" string="Nhóm sản phẩm" context="{'group_by': 'product_categ_id'}"/>
+                    <filter name="group_period" string="Kỳ" context="{'group_by': 'period_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_rebate_margin_report" model="ir.actions.act_window">
+        <field name="name">Lợi nhuận sau chiết khấu</field>
+        <field name="res_model">rebate.margin.report</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="context">{'search_default_sale': 1}</field>
+    </record>
+
+    <menuitem id="menu_rebate_margin" name="Lợi nhuận sau chiết khấu" parent="rebate_base.menu_rebate_analysis"
+              action="action_rebate_margin_report" sequence="30"/>
+</odoo>

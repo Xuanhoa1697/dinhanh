@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rebate_import_view_form" model="ir.ui.view">
+        <field name="name">rebate.import.form</field>
+        <field name="model">rebate.import</field>
+        <field name="arch" type="xml">
+            <form string="Nhập thỏa thuận từ Excel">
+                <p>Mỗi dòng của file là một bậc; các dòng cùng mã thỏa thuận và tên quy tắc được gom lại.
+                    Tải file mẫu để xem đủ các cột và giá trị hợp lệ.</p>
+                <group>
+                    <field name="file_name" invisible="1"/>
+                    <field name="file_data" filename="file_name"/>
+                    <field name="approve"/>
+                    <field name="template_name" invisible="1"/>
+                    <field name="result" invisible="not result"/>
+                </group>
+                <footer>
+                    <button name="action_import" type="object" string="Nhập" class="btn-primary"/>
+                    <button name="action_download_template" type="object" string="Tải file mẫu"/>
+                    <button string="Bỏ qua" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_rebate_import" model="ir.actions.act_window">
+        <field name="name">Nhập thỏa thuận từ Excel</field>
+        <field name="res_model">rebate.import</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

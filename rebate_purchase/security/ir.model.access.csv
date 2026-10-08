@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_rebate_purchase_alloc_user,rebate.purchase.alloc user,model_rebate_purchase_alloc,rebate_base.group_rebate_user,1,0,0,0
+access_rebate_purchase_alloc_inv,rebate.purchase.alloc invoice,model_rebate_purchase_alloc,account.group_account_invoice,1,1,1,0
+access_rebate_purchase_alloc_ro,rebate.purchase.alloc readonly,model_rebate_purchase_alloc,account.group_account_readonly,1,0,0,0
+access_rebate_claim_user,rebate.claim user,model_rebate_claim,rebate_base.group_rebate_user,1,1,1,0
+access_rebate_claim_inv,rebate.claim invoice,model_rebate_claim,account.group_account_invoice,1,1,1,0
+access_rebate_claim_ro,rebate.claim readonly,model_rebate_claim,account.group_account_readonly,1,0,0,0
